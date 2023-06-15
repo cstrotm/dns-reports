@@ -1,0 +1,14 @@
+[global]
+debug=no
+verbose=yes
+
+[dns-collect]
+token=<add your authentication token here>
+ignorelist=
+redis_expire=5160000
+
+[dns-fetch]
+resolver=8.8.8.8
+redis_expire=5160000
+
+[dns-report]
