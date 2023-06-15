@@ -1,0 +1,119 @@
+#+Title: DNS Reports
+#+Date: <2023-06-15 Thu>
+#+Author: Carsten Strotmann
+
+* About
+
+This repository contains a collection of scripts that can be used to
+monitor and check DNS zone content for operational issues.
+
+Currently DNS zone content via the Cloudflare API is supported. Other
+sources for DNS content is possible and planned. If you are interested
+in sponsoring a new DNS data source for the reports, please open an
+issue in this repository.
+
+Pull requests are very welcome.
+
+* Installation
+
+** Requirements
+
+ * [[https://redis.io][Redis]]
+ * [[https://python.org][Python 3.9+]]
+
+** Installation
+
+Copy the Python files into any path convenient on your system. Create
+a configuration file (don't forget the authentication token).
+
+* Configuration
+
+Configuration for all script modules is done via the file
+=dns-report.cfg=. An example configuration file is provided. A
+Cloudflare Authentication Token is required to use the
+=dns-collect-cloudflare= module.
+
+* Usage
+
+In the current version the scripts *must* be executed in the following
+order:
+
+ 1. =dns-collect-cloudflare= - fetches the base zone information from
+    the Cloudflare server
+ 2. =dns-fetch= - fetches additional information not available via the
+    Cloudflare-API using DNS queries (e.g. DNSSEC information)
+ 3. =dns-report= - generates reports
+
+Once executed, the script =dns-report= can be executed with different
+command line parameters to create the reports.
+
+** dns-collect-cloudflare
+
+The script =dns-collect-cloudflare= has no command line switches.
+
+The following configuration items can be defined in the configuration
+file:
+
+*** token
+
+The Cloudflare API authentication token (required)
+
+*** ignorelist
+
+Comma separated list of domain names that exist on the server but
+should be ignored in the reports (not collected).
+
+*** redis_expire
+
+Time in seconds how long the collected data should be kept in the
+Redis DB (default 5160000 seconds)
+
+** dns-fetch
+
+The script =dns-fetch= has no command line switches.
+
+The following configuration items can be defined in the configuration
+file:
+
+*** resolver
+
+The IP-Address of the DNS Resolver to use for DNS queries
+
+*** redis_expire
+
+Time in seconds how long the collected data should be kept in the
+Redis DB (default 5160000 seconds)
+
+** dns-report
+
+The script =dns-report= does currently does not have configurable
+settings in the configuration file.
+
+The following command line switches are supported:
+
+ * =-v= Verbose output
+ * =-d= Debug output
+ * =-h= short usage information
+ * =-s= print global statistics (all zones)
+ * =-i= print messages of type /Information/ for each zone
+ * =-o= print messages of type /Optimization/ for each zone
+ * =-w= print messages of type /Warning/ for each zone
+ * =-e= print messages of type /Error/ for each zone
+ * =-r= select the report type, any of =warn=, =opt= or =err=
+
+Example:
+
+#+begin_example
+# python3.11 ./dns-report.py -i -w -e -o -s -r err,opt,warn
+#+end_example
+
+* Future plans
+
+ * PowerDNS collector support
+ * BIND 9 collector support
+ * NSD collector support
+ * KnotDNS collector support
+
+* Acknowledgements
+
+Work on this software has been supported by [[https://sys4.de][sys4 AG]] and RheinTec.
